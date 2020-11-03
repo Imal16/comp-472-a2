@@ -49,16 +49,38 @@ def getArgs():
 def run():
     args = getArgs()
 
-    #Sample node
-    root = Node(None, 0, [3,0,1,4,2,6,5,7])     #numbers taken from the first sample puzzle
-
-    print(root.__doc__)
-    print(root.__dict__)
-
     puzzles = readPuzzle(args.file)
 
     print(puzzles)
+    
+    #Each algorithm needs to be run on each puzzle
+    for p in puzzles:
+        root = Node(None, 0, p)
+ 
+        #run UCS
 
+        #run GBFS heuristic 0 --> demo only?
+        #run GBFS heuristic 1
+        #run GBFS heuristic 2
+
+        #run A* heuristic 0 --> demo only?
+        #run A* heuristic 1
+        #run A* heuristic 2
+
+        #output the following files:
+            #UCS solution, search
+            #GBFS h1 solution, search
+            #GBFS h2 solution, search
+            #A* h1 solution, search
+            #A* h2 solution, search
+
+            #GBFS h0 solution, search --> demo only?
+            #A* h0 solution, search --> demo only?
+
+            #14 files total per puzzle
+
+            #file name pattern: puzzleIndex_algorithm-heuristic_contents.txt
+            
 
 if __name__ == "__main__":
     run()
