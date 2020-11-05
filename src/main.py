@@ -1,10 +1,25 @@
+# By Ihsaan Malek and Olivier Racette
+# The goal of this program is to use several search algorithms (UCS, GBFS, A*) to complete an x-puzzle.
+
+# Legal moves:
+#   direct horizontal / vertical translation (cost 1)
+#   wrapping horizontal / vertical translation (cost 2) NOTE: vertical wrapping is only OK when there are more than 2 rows
+#    diagonal (direct or wrap)
+
 import csv
 import argparse
+import numpy as np
 
 from node import Node
 from pathlib import Path
 
 puzzle_folder = Path("../puzzles/")
+
+#Leaving this here for now. Would be great if it wasn't hard coded but we don't really have a way of doing it another way with the data format.
+#We can't really infer the dimensions of the puzzle from the txt file
+#8 puzzle is supposed to be 3x3 grid, but our version has 8-puzzle being 2x4 grid...
+puzzle_rows = 2
+puzzle_cols = 4
 
 
 #Placeholder for a method that takes in a node (any node) and generates its immediate children
@@ -15,7 +30,7 @@ def buildChildren(node):
 
 #reads the given pizzle file
 #returns a list of puzzles
-def readPuzzle(file):
+def readPuzzle(file, p_rows, p_cols):
     puzzles = []
 
     with open(puzzle_folder / file) as csvFile:
@@ -28,7 +43,8 @@ def readPuzzle(file):
             for entry in row:
                 p.append(int(entry))
 
-            puzzles.append(p)
+            #easy way of doing it, with numpy
+            puzzles.append(np.array(p).reshape(p_rows, p_cols))     #add tolist() if python array/list is needed
 
     return puzzles
 
@@ -49,7 +65,7 @@ def getArgs():
 def run():
     args = getArgs()
 
-    puzzles = readPuzzle(args.file)
+    puzzles = readPuzzle(args.file, puzzle_rows, puzzle_cols)
 
     print(puzzles)
     
