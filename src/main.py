@@ -4,7 +4,7 @@
 # Legal moves:
 #   direct horizontal / vertical translation (cost 1)
 #   wrapping horizontal / vertical translation (cost 2) NOTE: vertical wrapping is only OK when there are more than 2 rows
-#    diagonal (direct or wrap)
+#   diagonal (direct or wrap) (cost 3)
 
 import csv
 import argparse
@@ -69,9 +69,11 @@ def run():
 
     print(puzzles)
     
+    root = Node(None, 0, 0, puzzles[0])
+
     #Each algorithm needs to be run on each puzzle
-    for p in puzzles:
-        root = Node(None, 0, p)
+    #for p in puzzles:
+        #root = Node(None, 0, 0, p)
  
         #run UCS
 
