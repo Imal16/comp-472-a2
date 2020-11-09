@@ -4,12 +4,15 @@
 import csv
 import argparse
 import random
+import time
 
 #External dependencies
 import numpy as np
 
 from node import Node
 from pathlib import Path
+from queue import PriorityQueue
+
 
 puzzle_folder = Path("../puzzles/")
 
@@ -26,7 +29,7 @@ def addMoves(moves_list, zeros, parent, cost):
     for z in zeros:
         b = np.copy(parent.board)
         b[z[0], z[1]], b[zero[0], zero[1]] = b[zero[0], zero[1]], b[z[0], z[1]]     #swapping: a,b = b,a
-        moves_list.append(Node(parent, parent.depth+1, cost, b, z))
+        moves_list.append(Node(parent, parent.depth+1, cost, b, z))   
 
 
 #Method that takes in a node (any node) and generates its immediate children
@@ -168,35 +171,77 @@ def printBoard(board):
         print(*row, sep=' ')
 
 
+#returns total cost from node to root
+def g(n):
+    if n is None:
+        return 0
+    else:
+        return n.cost + g(n.parent)
+
+def getPath(n):
+    currNode = n
+    path = []
+
+    while currNode is not None:
+        path.append(currNode)
+        currNode = currNode.parent
+
+    path.reverse()
+
+    return path
+
+
 def run():
     args = getArgs()
 
     puzzles = readPuzzle(args.file, puzzle_rows, puzzle_cols)
+    
+    s = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]) )
+    op = PriorityQueue()
+    closed = []
 
-    root = Node(None, 0, 0, puzzles[0])
-    stop = False
-    currNode = root
+    g1 = [[1,2,3,4],[5,6,7,0]]
+    g2 = [[1,3,5,7],[2,4,6,0]]
 
-    #THIS IS FOR TESTING PURPOSES
-    #Keeps looping until "y" is input at end of round
-    #chooses a random node in the list of children
-    while not stop:
-        print("Current board:")
-        printBoard(currNode.board)
+    op.put(s)
 
-        children = buildChildren(currNode)
+    start_time = time.time()
+    max_time = 60
+    rnd = 1
 
-        for c in children:
-            print("New board: ")
-            printBoard(c.board)
+    while not op.empty() and (time.time() - start_time) < max_time:
+        s = op.get()
 
-        value = input("stop generating? y/n ")
-
-        if value.lower() == "y":
-            stop = True
+        if (s.board == g1).all() or (s.board == g2).all():  #success!
+            print("----------SUCCCESS----------")
+            break
         else:
-            print("----------NEXT ROUND----------")
-            currNode = children[random.randint(0, len(children)-1)]
+            closed.append(s)
+            children = buildChildren(s)
+
+
+            for c in children:
+                c.root_cost = g(c)
+
+                if c in op.queue:
+                    print("----------MODIFY OPEN----------")
+                    pass
+                    #need to go in and replace the current data in the open queue with the new  
+                
+                if c not in closed:
+                    op.put(c)
+                else:
+                    print("----------CHILD IN CLOSED----------")
+
+        #print("Round", rnd, len(op.queue), len(closed))
+        rnd += 1
+
+    path = getPath(s)
+
+    for n in path:
+        print("--------------------")
+        printBoard(n.board)
+        print("Cost:", n.cost, "Total cost:", n.root_cost)
 
     #Each algorithm needs to be run on each puzzle
     #for p in puzzles:
