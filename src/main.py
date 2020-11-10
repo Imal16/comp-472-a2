@@ -9,6 +9,7 @@ import random
 import numpy as np
 
 from node import Node
+from Search_functions import generate_goal, manhattan_distance, sum_permutation_inversions
 from pathlib import Path
 
 puzzle_folder = Path("../puzzles/")
@@ -16,8 +17,8 @@ puzzle_folder = Path("../puzzles/")
 #Leaving this here for now. Would be great if it wasn't hard coded but we don't really have a way of doing it another way with the data format.
 #We can't really infer the dimensions of the puzzle from the txt file
 #8 puzzle is supposed to be 3x3 grid, but our version has 8-puzzle being 2x4 grid...
-puzzle_rows = 2
-puzzle_cols = 4
+puzzle_rows = 2 # might need to change this so it can recognize it dynamically for 2.5
+puzzle_cols = 4 # might need to change this so it can recognize it dynamically for 2.5
 
 #Makes Node objects from a series of (y, x) tuples that represent coordinates of the "zero" tile and adds them to the passed movesList
 def addMoves(moves_list, zeros, parent, cost):
@@ -39,7 +40,8 @@ def buildChildren(node):
     y_max = len(node.board)-1
     x_max = len(node.board[0])-1
     zero = node.zero_coords #(node.zero_coords[1], node.zero_coords[0])
-
+    print('board', node.board)
+    print('zero',zero)
     #NOTE that x and y are inverted for all tuples
     upper_left = (0, 0)
     upper_right = (0, x_max)
@@ -75,7 +77,8 @@ def buildChildren(node):
         #can go to immediate diagonal upper left or wrap diagonal upper right
         new_zeros.append((zero[0] - 1, zero[1] - 1))
         new_zeros.append((zero[0] - 1, 0))
-
+    
+    print('diagonals',new_zeros)
 
     #for nz in new_zeros:
     #    b = np.copy(node.board)
@@ -83,7 +86,8 @@ def buildChildren(node):
     #    moves.append(Node(node, node.depth+1, 3, b, nz))
 
     addMoves(moves, new_zeros, node, 3)
-
+    
+    print('initial moves',moves)
 
     #cases where wrap-around is permitted
     #wrapping horizontal / vertical translation (cost 2) NOTE: vertical wrapping is only OK when there are more than 2 rows
@@ -102,9 +106,11 @@ def buildChildren(node):
         elif zero[0] == y_max:
             new_zeros.append((0, zero[1]))
 
-
+    print('wrap zero',new_zeros)
+    
     addMoves(moves, new_zeros, node, 2)
-
+    
+    print(moves)
     #cases with simple translation
     new_zeros = []
 
@@ -123,8 +129,8 @@ def buildChildren(node):
     addMoves(moves, new_zeros, node, 1)
 
     #for m in moves:
-    #    print("New board: ")
-    #    printBoard(m.board)
+        #print("New board: ")
+        #printBoard(m.board)
 
     return moves
 
@@ -133,6 +139,7 @@ def buildChildren(node):
 #returns a list of puzzles
 def readPuzzle(file, p_rows, p_cols):
     puzzles = []
+    max_val = []
 
     with open(puzzle_folder / file) as csvFile:
         reader = csv.reader(csvFile, delimiter=' ')
@@ -143,11 +150,13 @@ def readPuzzle(file, p_rows, p_cols):
             #Entries are read as characters by default...need to iterate over each and read as int
             for entry in row:
                 p.append(int(entry))
-
+            max_val.append(max(p))
             #easy way of doing it, with numpy
             puzzles.append(np.array(p).reshape(p_rows, p_cols))     #add tolist() if python array/list is needed
+    
+    max_val = max(max_val)
 
-    return puzzles
+    return puzzles, max_val
 
 
 #Sets and retrieves the command line arguments
@@ -171,8 +180,7 @@ def printBoard(board):
 def run():
     args = getArgs()
 
-    puzzles = readPuzzle(args.file, puzzle_rows, puzzle_cols)
-
+    puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)    
     root = Node(None, 0, 0, puzzles[0])
     stop = False
     currNode = root
@@ -183,8 +191,13 @@ def run():
     while not stop:
         print("Current board:")
         printBoard(currNode.board)
-
         children = buildChildren(currNode)
+        
+        goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
+        
+        #man_dist1, man_distd2 = manhattan_distance(currNode.board,goal1,goal2)  #h1
+        
+        sum_per_inv1, sum_per_inv2 = sum_permutation_inversions(currNode.board,goal1,goal2) #h2
 
         for c in children:
             print("New board: ")
