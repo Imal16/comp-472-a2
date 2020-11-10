@@ -5,6 +5,7 @@ import csv
 import argparse
 import random
 import time
+import heapq
 
 #External dependencies
 import numpy as np
@@ -199,24 +200,25 @@ def run():
     puzzles = readPuzzle(args.file, puzzle_rows, puzzle_cols)
     
     #s = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]) )
-    s = Node(None, 0, 0, puzzles[0])
-    op = PriorityQueue()
+    s = Node(None, 0, 0, puzzles[2])
+    op = [] #PriorityQueue()
     closed = []
 
     g1 = [[1,2,3,4],[5,6,7,0]]
     g2 = [[1,3,5,7],[2,4,6,0]]
 
-    op.put(s)
+    heapq.heappush(op, s)
 
     start_time = time.time()
     max_time = 60
     stop_time = 0
-    rnd = 1
+    round_count = 1
 
     success = False
 
-    while not op.empty() and (time.time() - start_time) < max_time:
-        s = op.get()
+    while op and (time.time() - start_time) < max_time:
+        round_timer = time.time()
+        s = heapq.heappop(op)
 
         if (s.board == g1).all() or (s.board == g2).all():  #success!
             print("----------SUCCCESS----------")
@@ -230,15 +232,17 @@ def run():
             for c in children:
                 c.root_cost = g(c)
 
-                for i in range(len(op.queue)):
-                    if c == op.queue[i] and c < op.queue[i]:
-                        op.queue[i] = c
+                #if c is already in open and its more expensive, we need to swap it
+                for i in range(len(op)):
+                    if c == op[i] and c < op[i]:
+                        op[i] = c
                         break;
                 
                 if c not in closed:
-                    op.put(c)
+                    heapq.heappush(op, c)
 
-        rnd += 1
+        #print("Round", round_count, len(op), len(closed), "Time:", round((time.time() - round_timer),3))
+        round_count += 1
 
     if success:
         path = getPath(s)
