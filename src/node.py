@@ -23,3 +23,6 @@ class Node:
     #overloading Less Than for the priority queue
     def __lt__(self, node):
         return self.root_cost < node.root_cost
+
+    def __eq__(self, node):
+        return (self.board == node.board).all()

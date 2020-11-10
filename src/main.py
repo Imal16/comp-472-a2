@@ -172,12 +172,14 @@ def printBoard(board):
 
 
 #returns total cost from node to root
+#This was compared to a non-recursive method and it was the same execution time
 def g(n):
     if n is None:
         return 0
     else:
         return n.cost + g(n.parent)
 
+#returns a list of nodes from the root to the passed node
 def getPath(n):
     currNode = n
     path = []
@@ -186,7 +188,7 @@ def getPath(n):
         path.append(currNode)
         currNode = currNode.parent
 
-    path.reverse()
+    path.reverse()  #reverse works in place!
 
     return path
 
@@ -196,7 +198,8 @@ def run():
 
     puzzles = readPuzzle(args.file, puzzle_rows, puzzle_cols)
     
-    s = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]) )
+    #s = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]) )
+    s = Node(None, 0, 0, puzzles[0])
     op = PriorityQueue()
     closed = []
 
@@ -207,41 +210,47 @@ def run():
 
     start_time = time.time()
     max_time = 60
+    stop_time = 0
     rnd = 1
+
+    success = False
 
     while not op.empty() and (time.time() - start_time) < max_time:
         s = op.get()
 
         if (s.board == g1).all() or (s.board == g2).all():  #success!
             print("----------SUCCCESS----------")
+            stop_time = (time.time() - start_time)
+            success = True
             break
         else:
             closed.append(s)
             children = buildChildren(s)
 
-
             for c in children:
                 c.root_cost = g(c)
 
-                if c in op.queue:
-                    print("----------MODIFY OPEN----------")
-                    pass
-                    #need to go in and replace the current data in the open queue with the new  
+                for i in range(len(op.queue)):
+                    if c == op.queue[i] and c < op.queue[i]:
+                        op.queue[i] = c
+                        break;
                 
                 if c not in closed:
                     op.put(c)
-                else:
-                    print("----------CHILD IN CLOSED----------")
 
-        #print("Round", rnd, len(op.queue), len(closed))
         rnd += 1
 
-    path = getPath(s)
+    if success:
+        path = getPath(s)
 
-    for n in path:
-        print("--------------------")
-        printBoard(n.board)
-        print("Cost:", n.cost, "Total cost:", n.root_cost)
+        for n in path:
+            print("--------------------")
+            printBoard(n.board)
+            print("Cost:", n.cost, "Total cost:", n.root_cost)
+
+        print("Execution time:", stop_time)
+    else:
+        print("Failed to find a solution in %i seconds." %max_time)
 
     #Each algorithm needs to be run on each puzzle
     #for p in puzzles:
