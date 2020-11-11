@@ -13,6 +13,7 @@ class Node:
         self.zero_coords = zero_coords
         self.root_cost = 0
         self.goal_cost = 0
+        self.total_cost = 0
 
         if self.zero_coords is None:
             #search for 0
@@ -21,13 +22,9 @@ class Node:
                     if board[i][j] == 0:
                         self.zero_coords = (i, j)
                         
-    #overiding 
+    #overiding less than and equals
     def __lt__(self, node):
-        return self.getTotalCost() < node.getTotalCost()
+        return self.total_cost < node.total_cost
 
     def __eq__(self, node):
         return (self.board == node.board).all()
-
-
-    def getTotalCost(self):
-        return self.root_cost + self.goal_cost

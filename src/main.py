@@ -97,7 +97,7 @@ def run2():
     args = getArgs()
 
     puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)    
-    root = Node(None, 0, 0, puzzles[2])
+    root = Node(None, 0, 0, puzzles[1])
     #root = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]))
     stop = False
     currNode = root
@@ -115,7 +115,7 @@ def run2():
     for n in path:
         print("--------------------")
         printBoard(n.board)
-        print("Cost:", n.cost, "Total cost:", n.getTotalCost())
+        print("Cost:", n.cost, "\tg(n) =", n.root_cost, "\th(n) =", n.goal_cost, "\tf(n) = ", n.total_cost)
 
     print("Execution time:", round(time, 2), "seconds.")
 

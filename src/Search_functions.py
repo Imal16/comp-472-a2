@@ -118,10 +118,13 @@ def h0(board, goal_state1,goal_state2):
 
 
 def check_goal(board, goal_state1,goal_state2):
-    if np.array_equal(board,goal_state1):
+    #using all() saves a few ms. why???
+    #if np.array_equal(board,goal_state1):
+    if (board == goal_state1).all():
         return (True, 1)
         
-    elif np.array_equal(board,goal_state2):
+    #elif np.array_equal(board,goal_state2):
+    elif (board == goal_state2).all():
         return (True, 2)
         
     else:
@@ -176,7 +179,7 @@ def A_star(StartNode,goal1,goal2, h):
     goalstate = 0 
     solution_flag=0
     
-    heapq.heappush(openlist, (0,current_node)) #insert root node into heaph
+    heapq.heappush(openlist, current_node) #insert root node into heaph
 
     max_time = 60
     stop_time = 0
@@ -184,14 +187,11 @@ def A_star(StartNode,goal1,goal2, h):
 
     while openlist and (time.time() - start_time) < max_time: 
         
-        current_node = heapq.heappop(openlist)[1]  #popheap
-    
-        #print("Current board:")
-        #printBoard(current_node.board)
+        current_node = heapq.heappop(openlist)  #popheap
     
         reached_goal, goalstate = check_goal(current_node.board,goal1,goal2)
 
-        if reached_goal == True:   #goal is reached, trigger flag to exit while
+        if reached_goal:   #goal is reached, trigger flag to exit while
             #solution_flag = 1
             print("----------SUCCCESS----------")
             stop_time = (time.time() - start_time)
@@ -201,86 +201,67 @@ def A_star(StartNode,goal1,goal2, h):
         children = buildChildren(current_node)
 
         for child in children:
-            close_flag=0
-            open_flag = 0
+            #close_flag = 0     #not used
+            #open_flag = 0      #not used
             
-
-            
-            g_cost = g(child)
+            child.root_cost = g(child)
             h_cost1, h_cost2 = heuristic(h,child.board,goal1,goal2)
-            total_cost = min(g_cost+h_cost1, g_cost+h_cost2)
+            child.goal_cost = min(h_cost1, h_cost2)
+            child.total_cost = child.root_cost + child.goal_cost
 
             #print(total_cost)
             #if total_cost < 5: #debug
             #    print(child.board)
             
             #use space, but mkaes finding index faster due to np vectorization
-            temp_close = np.array([c[1].board for c in closedlist])
+            temp_close = np.array([c.board for c in closedlist])
             
             try:#if child exist in closed
                 
                 closed_same_child_index = np.where(np.all(np.all(temp_close == child.board,axis=2),axis=1))[0][0]
-                closed_child_cost = closedlist[closed_same_child_index][0] #get cost of that state
-                
-                if closed_child_cost > total_cost: #if new path is lower
-                    heapq.heappush(openlist, [total_cost,child]) #push into open, need to revisit
+                closed_child_cost = closedlist[closed_same_child_index].total_cost #get cost of that state
+
+                if closed_child_cost > child.total_cost: #if new path is lower
+                    heapq.heappush(openlist, child) #push into open, need to revisit
                     #print('child in closed')
-                else:
+                #else:
                         #print('skip close')
-                        close_flag = 1
+                        #close_flag = 1     #not used
                         
             except: #not in closed, check open
                 
                 try: #check if in open
                     del temp_close
-                    temp_open = np.array([c[1].board for c in openlist]) # creates an np.array containing all board states from open list
+                    temp_open = np.array([c.board for c in openlist]) # creates an np.array containing all board states from open list
                     #print("temporary OPE", temp_open)  
                     
                     open_same_child_index = np.where(np.all(np.all(temp_open == child.board,axis=2),axis=1))[0][0]
                     #child exists in open
                     #print('Index in open: ',open_same_child_index)
-                    current_child_cost = openlist[open_same_child_index][0] #get cost of that state
+                    current_child_cost = openlist[open_same_child_index].total_cost #get cost of that state
                     
                     #print('cost in open:',current_child_cost)
                     #print('path_cost',total_cost)
                     
-                    if current_child_cost > total_cost: #if new path is cheaper, replace cost value
+                    if current_child_cost > child.total_cost: #if new path is cheaper, replace cost value
                         #print('Open, there is a duplpppppp')
-                        openlist[open_same_child_index][0] = total_cost
+                        openlist[open_same_child_index][0] = child.total_cost
                         heapq.heapify(openlist)
 
-                    else:
+                    #else:
                         #print('skip open')
-                        open_flag = 1 
+                        #open_flag = 1  #not used
                     
                 except: #if not in open or closed, just push.
                         #print('NEW')
                         #if open_flag ==1 or close_flag ==1:
                             #print('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFffffffffffff errors')
                         #print(child.board)
-                        heapq.heappush(openlist, [total_cost,child]) #crrent children stored in heap  by order of cost
+                        heapq.heappush(openlist, child) #crrent children stored in heap  by order of cost
 
                 
-        if solution_flag == 0:   
-            heapq.heappush(closedlist, [0,current_node]) #insert original node into explored
-            
-            #current_node = heapq.heappop(openlist)[1] #pops the lowest cost node
-            #print("LOL")
-            #print("New board: ")
-            #printBoard(current_node.board)
-        
-    
-    #if solution_flag ==1:
-    #    if goalstate != 1 or goalstate !=2:
-    #        raise Exception('Error in bound') #double check goal condition
-            
-        #print('Goal Reached!')
-        #print("New board: ")
-        #printBoard(current_node.board)
-        #if goalstate == 1:
-        #    print(goal1)
-        #if goalstate == 2:
-        #    print(goal2)
+        #if solution_flag == 0:   #solution flag is always 0
+        heapq.heappush(closedlist, current_node)
         
     return stop_time, path
     
