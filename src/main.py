@@ -53,6 +53,7 @@ def getArgs():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("-f", "--file" ,type=str, help="Name of the puzzle file. Defaults to samplePuzzles.txt", default="samplePuzzles.txt")
+    parser.add_argument("-t", "--timeout" ,type=int, help="Number of seconds before the search functions are timed out.", default=60)
 
     return parser.parse_args()
 
@@ -63,68 +64,21 @@ def run():
 
     puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)    
     root = Node(None, 0, 0, puzzles[0])
-    stop = False
-    currNode = root
-
-    #THIS IS FOR TESTING PURPOSES
-    #Keeps looping until "y" is input at end of round
-    #chooses a random node in the list of children
-    while not stop:
-        print("Current board:")
-        printBoard(currNode.board)
-        children = buildChildren(currNode)
-        
-        goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
-        
-        man_dist1, man_distd2 = manhattan_distance(currNode.board,goal1,goal2)  #h1
-        
-        sum_per_inv1, sum_per_inv2 = sum_permutation_inversions(currNode.board,goal1,goal2) #h2
-
-        for c in children:
-            print("New board: ")
-            printBoard(c.board)
-            sum_per_inv1, sum_per_inv2 = sum_permutation_inversions(c.board,goal1,goal2) #h2
-
-        value = input("stop generating? y/n ")
-
-        if value.lower() == "y":
-            stop = True
-        else:
-            print("----------NEXT ROUND----------")
-            currNode = children[random.randint(0, len(children)-1)]
-
-def run2():
-    args = getArgs()
-
-    puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)    
-    root = Node(None, 0, 0, puzzles[1])
     #root = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]))
-    stop = False
-    currNode = root
 
-    #THIS IS FOR TESTING PURPOSES
-    #Keeps looping until "y" is input at end of round
-    #chooses a random node in the list of children
-    #while not stop:
-        #print("Current board:")
-        #printBoard(currNode.board)
     goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
         
-    time, path = A_star(currNode,goal1,goal2, 2) #test1 with manhattan
+    time, path = A_star(root,goal1,goal2, 2, args.timeout) #test1 with manhattan
 
-    for n in path:
-        print("--------------------")
-        printBoard(n.board)
-        print("Cost:", n.cost, "\tg(n) =", n.root_cost, "\th(n) =", n.goal_cost, "\tf(n) = ", n.total_cost)
+    if path:
+        for n in path:
+            print("--------------------")
+            printBoard(n.board)
+            print("Cost:", n.cost, "\tg(n) =", n.root_cost, "\th(n) =", n.goal_cost, "\tf(n) = ", n.total_cost)
 
-    print("Execution time:", round(time, 2), "seconds.")
-
-        #value = input("stop generating? y/n ")
-
-        #if value.lower() == "y":
-        #    stop = True
-        #else:
-            #print("----------NEXT ROUND----------")
+        print("Execution time:", round(time, 2), "seconds.")
+    else:
+        print("Failed to find a solution in %i seconds." %time)
 
     #Each algorithm needs to be run on each puzzle
     #for p in puzzles:
@@ -156,4 +110,4 @@ def run2():
             
 
 if __name__ == "__main__":
-    run2()
+    run()
