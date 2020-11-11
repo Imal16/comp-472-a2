@@ -97,26 +97,34 @@ def run2():
     args = getArgs()
 
     puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)    
-    root = Node(None, 0, 0, puzzles[0])
+    root = Node(None, 0, 0, puzzles[2])
+    #root = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]))
     stop = False
     currNode = root
 
     #THIS IS FOR TESTING PURPOSES
     #Keeps looping until "y" is input at end of round
     #chooses a random node in the list of children
-    while not stop:
-        print("Current board:")
-        printBoard(currNode.board)
-        goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
+    #while not stop:
+        #print("Current board:")
+        #printBoard(currNode.board)
+    goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
         
-        A_star(currNode,goal1,goal2, 2) #test1 with manhattan
+    time, path = A_star(currNode,goal1,goal2, 2) #test1 with manhattan
 
-        value = input("stop generating? y/n ")
+    for n in path:
+        print("--------------------")
+        printBoard(n.board)
+        print("Cost:", n.cost, "Total cost:", n.getTotalCost())
 
-        if value.lower() == "y":
-            stop = True
-        else:
-            print("----------NEXT ROUND----------")
+    print("Execution time:", round(time, 2), "seconds.")
+
+        #value = input("stop generating? y/n ")
+
+        #if value.lower() == "y":
+        #    stop = True
+        #else:
+            #print("----------NEXT ROUND----------")
 
     #Each algorithm needs to be run on each puzzle
     #for p in puzzles:

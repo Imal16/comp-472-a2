@@ -9,6 +9,7 @@ goal can be  [[1,2,3,4],[5,6,7,0]] or [[1,3,5,7],[2,4,6,0]] <- increases as you 
 '''
 import numpy as np
 import heapq 
+import time
 from node_util import buildChildren, printBoard
 
 
@@ -169,40 +170,49 @@ def A_star(StartNode,goal1,goal2, h):
     '''
     openlist = []
     closedlist = []
+    path = []
     current_node = StartNode
     reached_goal = False
     goalstate = 0 
     solution_flag=0
     
     heapq.heappush(openlist, (0,current_node)) #insert root node into heaph
-    
-    while len(openlist) != 0 or solution_flag==1: 
+
+    max_time = 60
+    stop_time = 0
+    start_time = time.time()
+
+    while openlist and (time.time() - start_time) < max_time: 
         
         current_node = heapq.heappop(openlist)[1]  #popheap
     
-        print("Current board:")
-        printBoard(current_node.board)
-        
-        children = buildChildren(current_node)
-        cost_list = list([cn[0] for cn in openlist]) #debuging
-        print(cost_list)
+        #print("Current board:")
+        #printBoard(current_node.board)
     
+        reached_goal, goalstate = check_goal(current_node.board,goal1,goal2)
+
+        if reached_goal == True:   #goal is reached, trigger flag to exit while
+            #solution_flag = 1
+            print("----------SUCCCESS----------")
+            stop_time = (time.time() - start_time)
+            path = getPath(current_node)
+            break
+
+        children = buildChildren(current_node)
+
         for child in children:
             close_flag=0
             open_flag = 0
             
-            reached_goal, goalstate = check_goal(child.board,goal1,goal2)
-            if reached_goal == True:   #goal is reached, trigger flag to exit while
-                solution_flag = 1
-                current_node = child #set current node as child because child is soltions
-                break       #break for loop
+
             
             g_cost = g(child)
             h_cost1, h_cost2 = heuristic(h,child.board,goal1,goal2)
             total_cost = min(g_cost+h_cost1, g_cost+h_cost2)
+
             #print(total_cost)
-            if total_cost < 5: #debug
-                print(child.board)
+            #if total_cost < 5: #debug
+            #    print(child.board)
             
             #use space, but mkaes finding index faster due to np vectorization
             temp_close = np.array([c[1].board for c in closedlist])
@@ -214,9 +224,9 @@ def A_star(StartNode,goal1,goal2, h):
                 
                 if closed_child_cost > total_cost: #if new path is lower
                     heapq.heappush(openlist, [total_cost,child]) #push into open, need to revisit
-                    print('child in closed')
+                    #print('child in closed')
                 else:
-                        print('skip close')
+                        #print('skip close')
                         close_flag = 1
                         
             except: #not in closed, check open
@@ -228,25 +238,25 @@ def A_star(StartNode,goal1,goal2, h):
                     
                     open_same_child_index = np.where(np.all(np.all(temp_open == child.board,axis=2),axis=1))[0][0]
                     #child exists in open
-                    print('Index in open: ',open_same_child_index)
+                    #print('Index in open: ',open_same_child_index)
                     current_child_cost = openlist[open_same_child_index][0] #get cost of that state
                     
-                    print('cost in open:',current_child_cost)
-                    print('path_cost',total_cost)
+                    #print('cost in open:',current_child_cost)
+                    #print('path_cost',total_cost)
                     
                     if current_child_cost > total_cost: #if new path is cheaper, replace cost value
-                        print('Open, there is a duplpppppp')
+                        #print('Open, there is a duplpppppp')
                         openlist[open_same_child_index][0] = total_cost
                         heapq.heapify(openlist)
 
                     else:
-                        print('skip open')
+                        #print('skip open')
                         open_flag = 1 
                     
                 except: #if not in open or closed, just push.
-                        print('NEW')
-                        if open_flag ==1 or close_flag ==1:
-                            print('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFffffffffffff errors')
+                        #print('NEW')
+                        #if open_flag ==1 or close_flag ==1:
+                            #print('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFffffffffffff errors')
                         #print(child.board)
                         heapq.heappush(openlist, [total_cost,child]) #crrent children stored in heap  by order of cost
 
@@ -254,24 +264,25 @@ def A_star(StartNode,goal1,goal2, h):
         if solution_flag == 0:   
             heapq.heappush(closedlist, [0,current_node]) #insert original node into explored
             
-            current_node = heapq.heappop(openlist)[1] #pops the lowest cost node
+            #current_node = heapq.heappop(openlist)[1] #pops the lowest cost node
+            #print("LOL")
             #print("New board: ")
             #printBoard(current_node.board)
         
     
-    if solution_flag ==1:
-        if goalstate != 1 or goalstate !=2:
-            raise Exception('Error in bound') #double check goal condition
+    #if solution_flag ==1:
+    #    if goalstate != 1 or goalstate !=2:
+    #        raise Exception('Error in bound') #double check goal condition
             
-        print('Goal Reached!')
-        print("New board: ")
-        printBoard(current_node.board)
-        if goalstate == 1:
-            print(goal1)
-        if goalstate == 2:
-            print(goal2)
+        #print('Goal Reached!')
+        #print("New board: ")
+        #printBoard(current_node.board)
+        #if goalstate == 1:
+        #    print(goal1)
+        #if goalstate == 2:
+        #    print(goal2)
         
-    return solution_flag
+    return stop_time, path
     
 '''
 for testing individual functions
