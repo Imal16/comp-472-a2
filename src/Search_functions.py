@@ -132,15 +132,11 @@ def check_goal(board, goal_state1,goal_state2):
     
 #returns total cost from node to root
 #This was compared to a non-recursive method and it was the same execution time
-
-def g(n):           #error was thrown regarding parent.node ==Nonetype
-    try:
-        if n is None:
-            return 0
-        else:
-            return n.cost + g(n.parent)
-    except:
+def cost_from_root(n):
+    if n is None:
         return 0
+    else:
+        return n.cost + cost_from_root(n.parent)
 
 #returns a list of nodes from the root to the passed node
 def getPath(n):
@@ -167,7 +163,7 @@ def heuristic(number,board,goal_state1,goal_state2):
         
 
  
-def A_star(StartNode,goal1,goal2, h, max_time):
+def search(StartNode, goal1, goal2, g, h, max_time):
     '''
     Used Algorithm from slide set 3.7, page 7
     '''
@@ -199,7 +195,7 @@ def A_star(StartNode,goal1,goal2, h, max_time):
 
         for child in children:        
             child.root_cost = g(child)
-            h_cost1, h_cost2 = heuristic(h,child.board,goal1,goal2)
+            h_cost1, h_cost2 = h(child.board, goal1, goal2)
             child.goal_cost = min(h_cost1, h_cost2)
             child.total_cost = child.root_cost + child.goal_cost
             

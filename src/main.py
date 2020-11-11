@@ -10,7 +10,7 @@ import numpy as np
 
 from node import Node
 from node_util import buildChildren, printBoard
-from Search_functions import generate_goal, manhattan_distance, sum_permutation_inversions, A_star
+from Search_functions import generate_goal, manhattan_distance, sum_permutation_inversions, search, cost_from_root
 from pathlib import Path
 
 puzzle_folder = Path("../puzzles/")
@@ -68,7 +68,8 @@ def run():
 
     goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
         
-    time, path = A_star(root,goal1,goal2, 2, args.timeout) #test1 with manhattan
+    time, path = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)
+    #time, path = A_star(root, goal1, goal2, g, lambda x, y, z: (0,0), args.timeout) #uniform cost
 
     if path:
         for n in path:
