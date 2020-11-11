@@ -68,16 +68,21 @@ def run():
 
     goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
         
-    time, path = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)
-    #time, path = A_star(root, goal1, goal2, g, lambda x, y, z: (0,0), args.timeout) #uniform cost
+    time, path = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)   #A*
+    #time, path = search(root, goal1, goal2, cost_from_root, lambda x, y, z: (0,0), args.timeout)       #uniform cost
+    #time, path = search(root, goal1, goal2, lambda x: 0, sum_permutation_inversions, args.timeout)     #gbfs
 
     if path:
+        cost = 0
+
         for n in path:
             print("--------------------")
             printBoard(n.board)
             print("Cost:", n.cost, "\tg(n) =", n.root_cost, "\th(n) =", n.goal_cost, "\tf(n) = ", n.total_cost)
+            cost += n.cost
 
         print("Execution time:", round(time, 2), "seconds.")
+        print("Total path cost: ", cost)
     else:
         print("Failed to find a solution in %i seconds." %time)
 
