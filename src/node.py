@@ -4,7 +4,7 @@ class Node:
     These include: Uniform Cost, Greedy Best First, A*
     """
 
-    def __init__(self, parent, depth, cost, board, zero_coords=None):
+    def __init__(self, parent, depth, cost, board, zero_coords = None, token = None):
         self.parent = parent
         self.children = None
         self.depth = depth
@@ -14,6 +14,7 @@ class Node:
         self.root_cost = 0
         self.goal_cost = 0
         self.total_cost = 0
+        self.token = token
 
         if self.zero_coords is None:
             #search for 0

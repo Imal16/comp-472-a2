@@ -13,8 +13,8 @@ def addMoves(moves_list, zeros, parent, cost):
 
     for z in zeros:
         b = np.copy(parent.board)
-        b[z[0], z[1]], b[zero[0], zero[1]] = b[zero[0], zero[1]], b[z[0], z[1]]     #swapping: a,b = b,a
-        moves_list.append(Node(parent, parent.depth+1, cost, b, z))
+        b[z[0], z[1]], b[zero[0], zero[1]] = b[zero[0], zero[1]], b[z[0], z[1]]             #swapping: a,b = b,a         
+        moves_list.append(Node(parent, parent.depth+1, cost, b, z, b[zero[0], zero[1]]))    #for the token that was moved: it was just swapped with 0!
 
 
 #Method that takes in a node (any node) and generates its immediate children
