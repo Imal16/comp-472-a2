@@ -9,6 +9,7 @@ goal can be  [[1,2,3,4],[5,6,7,0]] or [[1,3,5,7],[2,4,6,0]] <- increases as you 
 '''
 import numpy as np
 import heapq 
+from collections import deque
 import time
 from node_util import buildChildren, printBoard
 
@@ -168,7 +169,7 @@ def search(StartNode, goal1, goal2, g, h, max_time):
     Used Algorithm from slide set 3.7, page 7
     '''
     openlist = []
-    closedlist = []
+    closedlist = deque()
     path = []
     current_node = StartNode
     reached_goal = False
@@ -227,6 +228,6 @@ def search(StartNode, goal1, goal2, g, h, max_time):
                 except: #if not in open or closed, just push.
                         heapq.heappush(openlist, child) #crrent children stored in heap  by order of cost
 
-        heapq.heappush(closedlist, current_node)
+        closedlist.append(current_node)
         
     return max_time, []
