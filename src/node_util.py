@@ -120,9 +120,3 @@ def buildChildren(node):
         #printBoard(m.board)
 
     return moves
-
-
-#Printing the puzzle board without the brackets...
-def printBoard(board):
-    for row in board:
-        print(*row, sep=' ')

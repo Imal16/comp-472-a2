@@ -4,7 +4,7 @@ class Node:
     These include: Uniform Cost, Greedy Best First, A*
     """
 
-    def __init__(self, parent, depth, cost, board, zero_coords = None, token = None):
+    def __init__(self, parent, depth, cost, board, zero_coords = None, token = 0):
         self.parent = parent
         self.children = None
         self.depth = depth
@@ -29,3 +29,16 @@ class Node:
 
     def __eq__(self, node):
         return (self.board == node.board).all()
+
+
+    def stringifyBoard(self, split_rows):
+        result = ""
+
+        for row in self.board:
+            for i in row:
+                result += str(i) + " "
+            
+            if split_rows: #and (row != self.board[-1]).all():
+                result += "\n"
+
+        return result

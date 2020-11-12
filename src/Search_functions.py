@@ -11,7 +11,7 @@ import numpy as np
 import heapq 
 from collections import deque
 import time
-from node_util import buildChildren, printBoard
+from node_util import buildChildren
 
 
 
@@ -190,7 +190,7 @@ def search(StartNode, goal1, goal2, g, h, max_time):
             print("----------SUCCCESS----------")
             stop_time = (time.time() - start_time)
             path = getPath(current_node)
-            return stop_time, path
+            return stop_time, path, closedlist
 
         children = buildChildren(current_node)
 
@@ -230,4 +230,4 @@ def search(StartNode, goal1, goal2, g, h, max_time):
 
         closedlist.append(current_node)
         
-    return max_time, []
+    return max_time, [], closedlist

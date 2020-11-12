@@ -1,19 +1,24 @@
 # By Ihsaan Malek and Olivier Racette
 # The goal of this program is to use several search algorithms (UCS, GBFS, A*) to complete an x-puzzle.
 
+#python libraries
 import csv
 import argparse
 import random
+from pathlib import Path
 
 #External dependencies
 import numpy as np
 
+#user imports
 from node import Node
-from node_util import buildChildren, printBoard
+from node_util import buildChildren
 from Search_functions import generate_goal, manhattan_distance, sum_permutation_inversions, search, cost_from_root, h0
-from pathlib import Path
+from output_creator import output_solution, output_search, create_file_name
+
 
 puzzle_folder = Path("../puzzles/")
+output_path = Path("../output/")
 
 #Leaving this here for now. Would be great if it wasn't hard coded but we don't really have a way of doing it another way with the data format.
 #We can't really infer the dimensions of the puzzle from the txt file
@@ -62,22 +67,24 @@ def getArgs():
 def run():
     args = getArgs()
 
-    puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)    
-    root = Node(None, 0, 0, puzzles[0])
+    puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols) 
+    puzzle_num = 0  
+    h_num = 1
+    root = Node(None, 0, 0, puzzles[puzzle_num])
     #root = Node(None, 0, 0, np.array([[1,0,4,3],[5,2,6,7]]))
 
     goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
         
-    time, path = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)   #A*
-    #time, path = search(root, goal1, goal2, cost_from_root, lambda x, y, z: (0,0), args.timeout)       #uniform cost
-    #time, path = search(root, goal1, goal2, lambda x: 0, sum_permutation_inversions, args.timeout)     #gbfs
+    time, path, closed = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)   #A*
+    #time, path, closed = search(root, goal1, goal2, cost_from_root, lambda x, y, z: (0,0), args.timeout)       #uniform cost
+    #time, path, closed  = search(root, goal1, goal2, lambda x: 0, sum_permutation_inversions, args.timeout)     #gbfs
 
     if path:
         cost = 0
 
         for n in path:
             print("--------------------")
-            printBoard(n.board)
+            print(n.stringifyBoard(True))
             print("Cost:", n.cost, "\tg(n) =", n.root_cost, "\th(n) =", n.goal_cost, "\tf(n) = ", n.total_cost, "\tToken:", n.token)
             cost += n.cost
 
@@ -85,6 +92,14 @@ def run():
         print("Total path cost: ", cost)
     else:
         print("Failed to find a solution in %i seconds." %time)
+
+
+    #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
+    file_name = create_file_name(puzzle_num, "astar", "solution", h_num)
+    output_solution(output_path/file_name, path, time, separator="\t")
+
+    file_name = create_file_name(puzzle_num, "astar", "search", h_num)
+    output_search(output_path/file_name, closed, separator="\t")
 
     #Each algorithm needs to be run on each puzzle
     #for p in puzzles:
