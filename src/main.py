@@ -79,6 +79,12 @@ def printSolution(path, time):
         print("Failed to find a solution in %i seconds." %time)
 
 
+def runSearch(root, goal1, goal2, heuristics, max_time):
+    for h in heuristics:
+        time, path, closed = search(root, goal1, goal2, cost_from_root, h, max_time)
+        printSolution(path, time)
+
+
 #Each algorithm needs to be run on each puzzle
 #run GBFS heuristic 0 --> demo only?
 #run GBFS heuristic 1
@@ -105,86 +111,37 @@ def run():
     puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)
     goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
 
-    algos = ["ucs, gbfs, astar"]
-    heuristics = {
-        1: sum_permutation_inversions,
-        2: manhattan_distance
-    }
+    algos = ["ucs", "gbfs", "astar"]
 
     for i in range(len(puzzles)):        #we need the puzzle index for some parts of the code
         print("----------FINDING NEW SOLUTION----------")
 
         root = Node(None, 0, 0, puzzles[i])  
 
+        for a in algos:
+            if a == "ucs":
+                heuristics = {-1: lambda x, y, z: (0,0)}
+            else:
+                heuristics = {
+                    1: sum_permutation_inversions,
+                    2: manhattan_distance
+                }
 
-        #Uniform Cost Search
-        time, path, closed = search(root, goal1, goal2, cost_from_root, lambda x, y, z: (0,0), args.timeout)
-        printSolution(path, time)
+            if a == "gbfs":
+                gn = lambda x: 0
+            else:
+                gn = cost_from_root
 
-        #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
-        file_name = create_file_name(i, "ucs", "solution")
-        output_solution(output_path/file_name, path, time, separator="\t")
+            for h_num, h in heuristics.items():
+                time, path, closed = search(root, goal1, goal2, gn, h, args.timeout)
+                #printSolution(path, time)
 
-        file_name = create_file_name(i, "ucs", "search")
-        output_search(output_path/file_name, closed, separator="\t")
+                #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
+                file_name = create_file_name(i, a, "solution", h_num)
+                output_solution(output_path/file_name, path, time, separator="\t")
 
-
-
-        #Greedy Best First Search, h1
-        time, path, closed  = search(root, goal1, goal2, lambda x: 0, manhattan_distance, args.timeout)     #gbfs
-        time, path, closed = search(root, goal1, goal2, cost_from_root, manhattan_distance, args.timeout)   #A*
-
-        printSolution(path, time)
-
-        #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
-        file_name = create_file_name(i, "gbfs", "solution", 1)
-        output_solution(output_path/file_name, path, time, separator="\t")
-
-        file_name = create_file_name(i, "gbfs", "search", 1)
-        output_search(output_path/file_name, closed, separator="\t")
-
-
-
-        #Greedy Best First Search, h2
-        time, path, closed  = search(root, goal1, goal2, lambda x: 0, sum_permutation_inversions, args.timeout)     #gbfs
-        time, path, closed = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)   #A*
-
-        printSolution(path, time)
-
-        #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
-        file_name = create_file_name(i, "gbfs", "solution", 2)
-        output_solution(output_path/file_name, path, time, separator="\t")
-
-        file_name = create_file_name(i, "gbfs", "search", 2)
-        output_search(output_path/file_name, closed, separator="\t")
-
-
-
-        #A*, h1
-        time, path, closed = search(root, goal1, goal2, cost_from_root, manhattan_distance, args.timeout)
-
-        printSolution(path, time)
-
-        #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
-        file_name = create_file_name(i, "astar", "solution", 1)
-        output_solution(output_path/file_name, path, time, separator="\t")
-
-        file_name = create_file_name(i, "astar", "search", 1)
-        output_search(output_path/file_name, closed, separator="\t")
-
-
-
-        #A*, h2
-        time, path, closed = search(root, goal1, goal2, cost_from_root, sum_permutation_inversions, args.timeout)
-
-        printSolution(path, time)
-
-        #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
-        file_name = create_file_name(i, "astar", "solution", 2)
-        output_solution(output_path/file_name, path, time, separator="\t")
-
-        file_name = create_file_name(i, "astar", "search", 2)
-        output_search(output_path/file_name, closed, separator="\t")
+                file_name = create_file_name(i, a, "search", h_num)
+                output_search(output_path/file_name, closed, separator="\t")
 
     print("Execution complete.")
             

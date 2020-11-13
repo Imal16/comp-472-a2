@@ -6,10 +6,10 @@ Created on Tue Nov 10 15:55:12 2020
 
 
 #makes file name from all the info passed to output functions. because the same code was written twice really.
-def create_file_name(puzzle_num, algo, suffix, h_num=None):
+def create_file_name(puzzle_num, algo, suffix, h_num):
     name = str(puzzle_num) + "_" + algo 
     
-    if h_num is not None:
+    if h_num >= 0:
         name += "-h" + str(h_num) 
     
     name += "_" + suffix + ".txt" 
