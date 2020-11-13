@@ -229,5 +229,6 @@ def search(StartNode, goal1, goal2, g, h, max_time):
                         heapq.heappush(openlist, child) #crrent children stored in heap  by order of cost
 
         closedlist.append(current_node)
-        
-    return max_time, [], closedlist
+
+    print("----------FAILURE----------")    
+    return max_time, [], []

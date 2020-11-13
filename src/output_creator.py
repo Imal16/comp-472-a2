@@ -33,7 +33,7 @@ def output_solution(output_file, sol_path, time, separator=" "):
         #adding "\n" to every line
         lines = "\n".join(lines)
     else:
-        lines = "No solution was found in " + str(time) + " seconds."
+        lines = "no solution"
     
 
     #automatically overwrites existing files. file stream is also closed automatically. bless python!
@@ -45,12 +45,15 @@ def output_solution(output_file, sol_path, time, separator=" "):
 
 #creates and outputs the search data to the proper file. overwrites existing file.
 def output_search(output_file, closed, separator=" "):
-    lines = []
+    if closed:
+        lines = []
 
-    for n in closed:
-        lines.append(str(n.total_cost) + separator + str(n.root_cost) + separator + str(n.goal_cost) + separator + n.stringifyBoard(False))
+        for n in closed:
+            lines.append(str(n.total_cost) + separator + str(n.root_cost) + separator + str(n.goal_cost) + separator + n.stringifyBoard(False))
 
-    lines = "\n".join(lines)
+        lines = "\n".join(lines)
+    else:
+        lines = "no solution"
 
     with open(output_file, 'w') as file:        
         file.writelines(lines)

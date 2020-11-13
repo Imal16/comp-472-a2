@@ -79,12 +79,6 @@ def printSolution(path, time):
         print("Failed to find a solution in %i seconds." %time)
 
 
-def runSearch(root, goal1, goal2, heuristics, max_time):
-    for h in heuristics:
-        time, path, closed = search(root, goal1, goal2, cost_from_root, h, max_time)
-        printSolution(path, time)
-
-
 #Each algorithm needs to be run on each puzzle
 #run GBFS heuristic 0 --> demo only?
 #run GBFS heuristic 1
@@ -114,11 +108,13 @@ def run():
     algos = ["ucs", "gbfs", "astar"]
 
     for i in range(len(puzzles)):        #we need the puzzle index for some parts of the code
-        print("----------FINDING NEW SOLUTION----------")
+        print("----------NEW PUZZLE----------")
 
         root = Node(None, 0, 0, puzzles[i])  
 
         for a in algos:
+            print("Finding solution with " + a + "...")
+
             if a == "ucs":
                 heuristics = {-1: lambda x, y, z: (0,0)}
             else:
