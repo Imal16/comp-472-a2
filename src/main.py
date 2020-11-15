@@ -122,7 +122,7 @@ def run():
                     1: sum_permutation_inversions,
                     2: manhattan_distance
                 }
-
+                
             if a == "gbfs":
                 gn = lambda x: 0
             else:
