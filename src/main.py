@@ -128,12 +128,7 @@ def run():
                     1: sum_permutation_inversions,
                     2: manhattan_distance
                 }
-<<<<<<< Updated upstream
-                
-=======
                 '''
-
->>>>>>> Stashed changes
             if a == "gbfs":
                 gn = lambda x: 0
             else:
