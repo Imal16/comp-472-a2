@@ -26,10 +26,10 @@ def generate_random_puzzles(num_puzzles,num_row,num_col):
     puzzle_length= num_row*num_col
     
     for row in range(num_puzzles):
-        np.savetxt(puzzle_file,[np.random.permutation(puzzle_length).astype(int)], fmt='%i', delimiter=',')
+        np.savetxt(puzzle_file,[np.random.permutation(puzzle_length).astype(int)], fmt='%i', delimiter=' ')
     
     puzzle_file.close()
     
     return 0
 
-#generate_random_puzzles(3,2,4)
+#generate_random_puzzles(5,3,3)
