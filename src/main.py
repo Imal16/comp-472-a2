@@ -5,6 +5,7 @@
 import csv
 import argparse
 import random
+import os
 from pathlib import Path
 
 #External dependencies
@@ -16,16 +17,7 @@ from node_util import buildChildren
 from Search_functions import generate_goal, manhattan_distance, sum_permutation_inversions, search, cost_from_root, h0
 from output_creator import output_solution, output_search, create_file_name
 
-
 puzzle_folder = Path("../puzzles/")
-output_path = Path("../output/")
-analysis_path = Path("../analysis2.5/5/")
-
-#Leaving this here for now. Would be great if it wasn't hard coded but we don't really have a way of doing it another way with the data format.
-#We can't really infer the dimensions of the puzzle from the txt file
-#8 puzzle is supposed to be 3x3 grid, but our version has 8-puzzle being 2x4 grid...
-puzzle_rows = 5 # might need to change this so it can recognize it dynamically for 2.5
-puzzle_cols = 5 # might need to change this so it can recognize it dynamically for 2.5
 
 #reads the given pizzle file
 #returns a list of puzzles
@@ -54,12 +46,19 @@ def readPuzzle(file, p_rows, p_cols):
 #Sets and retrieves the command line arguments
 #Current arguments:
     #puzzle file to be used (optional, samplePuzzles.txt is used by default)
+    #timeout in seconds
+    #number of rows
+    #number of columns
+    #output directory
 #Returns a Namespace object
 def getArgs():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-f", "--file" ,type=str, help="Name of the puzzle file. Defaults to samplePuzzles.txt", default="5_puzzles_5X5.txt")
-    parser.add_argument("-t", "--timeout" ,type=int, help="Number of seconds before the search functions are timed out.", default=7200)
+    parser.add_argument("-f", "--file" ,type=str, help="Name of the puzzle file. Defaults to samplePuzzles.txt", default="samplePuzzles.txt")
+    parser.add_argument("-t", "--timeout" ,type=int, help="Number of seconds before the search functions are timed out.", default=60)
+    parser.add_argument("-r", "--rows" ,type=int, help="Number of rows each puzzle has.", default=2)
+    parser.add_argument("-c", "--columns" ,type=int, help="Number of columns each puzzle has.", default=4)
+    parser.add_argument("-o", "--output", type=str, help="Specifies which directory to write files to.", default="output")
 
     return parser.parse_args()
 
@@ -103,11 +102,18 @@ def printSolution(path, time):
 def run():
     args = getArgs()
 
+    puzzle_rows = args.rows
+    puzzle_cols = args.columns
+
+    output_path = Path("../" + args.output + "/")
+
+    if not output_path.exists():
+        output_path.mkdir()
+
     puzzles, highest_num = readPuzzle(args.file, puzzle_rows, puzzle_cols)
     goal1,goal2 = generate_goal(highest_num,puzzle_rows,puzzle_cols)
 
-    #algos = ["ucs", "gbfs", "astar"]
-    algos =['gbfs']
+    algos = ["ucs", "gbfs", "astar"]
 
     for i in range(len(puzzles)):        #we need the puzzle index for some parts of the code
         print("----------NEW PUZZLE----------")
@@ -121,14 +127,10 @@ def run():
                 heuristics = {-1: lambda x, y, z: (0,0)}
             else:
                 heuristics = {
-                    2: manhattan_distance
-                }
-                '''
-                heuristics = {
                     1: sum_permutation_inversions,
                     2: manhattan_distance
                 }
-                '''
+                
             if a == "gbfs":
                 gn = lambda x: 0
             else:
@@ -140,10 +142,10 @@ def run():
 
                 #note that tabs are being used as seperators instead of spaces to make it easier to read. can be undone by removing separator param un both output functions.
                 file_name = create_file_name(i, a, "solution", h_num)
-                output_solution(analysis_path/file_name, path, time, separator="\t")
+                output_solution(output_path/file_name, path, time, separator="\t")
 
                 file_name = create_file_name(i, a, "search", h_num)
-                output_search(analysis_path/file_name, closed, separator="\t")
+                output_search(output_path/file_name, closed, separator="\t")
 
     print("Execution complete.")
             

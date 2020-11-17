@@ -6,6 +6,7 @@ Created on Fri Nov 13 14:00:29 2020
 """
 import csv
 import os
+import numpy as np
 from pathlib import Path
 analysis_path = Path("../analysis2.4/")
 
@@ -28,7 +29,11 @@ def search_reader(algo,h=None,files=50,row=2,col=4):
                 pass
             else:
                 line_count.append(i)
-    print("Search_Length: ",line_count)
+    #print("Search_Length: ",line_count)
+    print("Search Length average:", np.average(line_count))
+    print("Search Length std dev:" , np.std(line_count))
+    print("Search Length min:" , min(line_count))
+    print("Search Length max:" , max(line_count))
 # =============================================================================
 #     
 #     with open(analysis_path/output_file, 'w') as file:        
@@ -62,8 +67,17 @@ def solution_reader(algo,h=None,files=50,row=2,col=4):
                 last_line = list(last_line.split("\t"))
                 search_cost.append(int(last_line[0]))
                 search_time.append(float(last_line[1]))
-    print("Search Costs: ", search_cost)
-    print("Search Times ",search_time)
+                
+    #print("Solution Costs: ", search_cost)
+    print("Solution Costs average:", np.average(search_cost))
+    print("Solution Costs std dev:" , np.std(search_cost))
+    print("Solution Costs min:", min(search_cost))
+    print("Solution Costs max:", max(search_cost))
+    #print("Solution Times ",search_time)
+    print("Solution Times average:", np.average(search_time))
+    print("Solution Times std dev:" , np.std(search_time))
+    print("Solution Times min:", min(search_time))
+    print("Solution Times max:", max(search_time))
     print("Amount of No Solutions: ", No_solution)
 # =============================================================================
 #         

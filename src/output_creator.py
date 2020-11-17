@@ -28,7 +28,7 @@ def output_solution(output_file, sol_path, time, separator=" "):
             lines.append(str(n.token) + separator + str(n.cost) + separator + n.stringifyBoard(False))
             total_cost += n.cost
 
-        lines.append(str(total_cost) + separator + separator + str(round(time, 2)))
+        lines.append(str(total_cost) + separator + str(round(time, 2)))
 
         #adding "\n" to every line
         lines = "\n".join(lines)
