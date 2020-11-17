@@ -41,35 +41,85 @@ def generate_goal(highestnum,puzzle_rows,puzzle_cols):
     
     return (goal_state1, goal_state2)
     
-#generate_goal(7,2,4)
+
+def diagonal_check(zero, curr_coords, goal_coords, x_max, y_max):
+    upper_left = (0, 0)
+    upper_right = (0, x_max)
+    lower_left = (y_max, 0)
+    lower_right = (y_max, x_max)
+
+    if goal_coords == zero:     #common condition, took it out
+        if zero == upper_left and (curr_coords == lower_right or curr_coords == (zero[0]+1, zero[1]+1)):
+            return True
+
+        elif zero == upper_right and (curr_coords == lower_left or curr_coords == (zero[0]+1, zero[1]-1)):
+            return True
+
+        elif zero == lower_left and (curr_coords == upper_right or curr_coords == (zero[0]-1, zero[1]+1)):
+            return True
+
+        elif zero == lower_right and (curr_coords == upper_left or curr_coords == (zero[0]-1, zero[1]-1)):
+            return True
+
+    return False
 
 
-def manhattan_distance(board, goal_state1,goal_state2):
-    
+def wrap_check(zero, curr_coords, goal_coords, x_max, y_max):
+    if goal_coords == zero:     #common condition, took it out
+        if zero[1] == 0 and curr_coords[1] == x_max and curr_coords[0] == zero[0]:
+            return True
+        elif zero[1] == x_max and curr_coords[1] == 0 and curr_coords[0] == zero[0]:
+            return True
+
+        #can only do vertical wrapping if the board has more than 2 rows
+        if y_max > 1:
+            if zero[0] == 0 and curr_coords[0] == y_max and curr_coords[1] == zero[1]:
+                return True
+            elif zero[0] == y_max and curr_coords[0] == 0 and curr_coords[1] == zero[1]:
+                return True
+
+    return False
+
+
+def manhattan_distance(node, goal_state1,goal_state2):
+    #re-write to take diags and wrap around into account
+    #if goal_coords is on a border and 0 is on the opposite side
+    # dist = 1
+    #if 0 is in a corner and goal_coords is place for diag move:
+    # dist = 1
+    board = node.board 
     distance1, distance2 = 0,0
+    zero = node.zero_coords
+    y_max = len(node.board)-1
+    x_max = len(node.board[0])-1
 
     for i in range(board.shape[0]):
         for j in range(board.shape[1]):
-            #print(board[i][j])
-            #print(i,j)
-            #goal 1
+            curr_coords = (i, j)
+
             goal_coords1 = np.where(goal_state1 == board[i][j])
-            x1, y1 = goal_coords1[0], goal_coords1[1]
-            distance1 += sum(abs(i-x1),abs(j-y1))
-            #print('d1: ',distance1 )
-            #goal 2
+            x1, y1 = goal_coords1[0], goal_coords1[1] 
+
+            if diagonal_check(zero, curr_coords, goal_coords1, x_max, y_max) or wrap_check(zero, curr_coords, goal_coords1, x_max, y_max):
+                distance1 += 1
+            else:
+                distance1 += sum(abs(i-x1),abs(j-y1))[0]
+
+
             goal_coords2 = np.where(goal_state2 == board[i][j])
             x2, y2 = goal_coords2[0], goal_coords2[1]
-            distance2 += sum(abs(i-x2),abs(j-y2))
-            #print('d2: ',distance2 )
-            
+
+            if diagonal_check(zero, curr_coords, goal_coords2, x_max, y_max) or wrap_check(zero, curr_coords, goal_coords2, x_max, y_max):
+                distance2 += 1
+            else:
+                distance2 += sum(abs(i-x2),abs(j-y2))[0]
+
     #print('Solution 1 est. cost: {}, Solution 2 est. cost: {}\n'.format(distance1[0], distance2[0]))
     
-    
-    
-    return distance1[0], distance2[0]
+    return distance1, distance2
 
-def sum_permutation_inversions(board, goal_state1,goal_state2):
+def sum_permutation_inversions(node, goal_state1,goal_state2):
+    board = node.board
     distance1, distance2 = 0,0
     temp_board1 = board.reshape(board.shape[0]*board.shape[1]) #flatten to 1d array
     
@@ -196,7 +246,7 @@ def search(StartNode, goal1, goal2, g, h, max_time):
 
         for child in children:        
             child.root_cost = g(child)
-            h_cost1, h_cost2 = h(child.board, goal1, goal2)
+            h_cost1, h_cost2 = h(child, goal1, goal2)
             child.goal_cost = min(h_cost1, h_cost2)
             child.total_cost = child.root_cost + child.goal_cost
             
