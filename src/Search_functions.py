@@ -41,7 +41,7 @@ def generate_goal(highestnum,puzzle_rows,puzzle_cols):
     
     return (goal_state1, goal_state2)
     
-
+#Checks if the tile at curr_coords can be moved with a diagonal move to goal_coords.
 def diagonal_check(zero, curr_coords, goal_coords, x_max, y_max):
     upper_left = (0, 0)
     upper_right = (0, x_max)
@@ -64,19 +64,35 @@ def diagonal_check(zero, curr_coords, goal_coords, x_max, y_max):
     return False
 
 
+#Checks if the tile at curr_coords can be moved with a wrap around to goal_coords.
 def wrap_check(zero, curr_coords, goal_coords, x_max, y_max):
-    if goal_coords == zero:     #common condition, took it out
-        if zero[1] == 0 and curr_coords[1] == x_max and curr_coords[0] == zero[0]:
-            return True
-        elif zero[1] == x_max and curr_coords[1] == 0 and curr_coords[0] == zero[0]:
-            return True
+    upper_left = (0, 0)
+    upper_right = (0, x_max)
+    lower_left = (y_max, 0)
+    lower_right = (y_max, x_max)
 
-        #can only do vertical wrapping if the board has more than 2 rows
-        if y_max > 1:
-            if zero[0] == 0 and curr_coords[0] == y_max and curr_coords[1] == zero[1]:
+    if goal_coords == zero:                 #common condition, 0 occupies the goal
+        if curr_coords[0] == zero[0]:       #common condition, same y values, horizoantal swap
+            if zero == upper_left and curr_coords[1] == x_max:
                 return True
-            elif zero[0] == y_max and curr_coords[0] == 0 and curr_coords[1] == zero[1]:
+            elif zero == upper_right and curr_coords[1] == 0:
                 return True
+            elif zero == lower_left and curr_coords[1] == x_max:
+                return True
+            elif zero == lower_right and curr_coords[1] == 0:
+                return True
+
+        elif y_max > 1 and curr_coords[1] == zero[1]:     #same x values, vertical swap, can only occur if there are more than 2 rows
+            if zero == upper_left and curr_coords[0] == y_max:
+                return True
+            elif zero == upper_right and curr_coords[0] == y_max:
+                return True
+            elif zero == lower_left and curr_coords[0] == 0:
+                return True
+            elif zero == lower_right and curr_coords[0] == 0:
+                return True
+
+    #Something else that had to be patched at the last minute. Always quadruple check the game rules!
 
     return False
 
