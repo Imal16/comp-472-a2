@@ -32,4 +32,4 @@ def generate_random_puzzles(num_puzzles,num_row,num_col):
     
     return 0
 
-#generate_random_puzzles(5,3,3)
+#generate_random_puzzles(5,4,5)

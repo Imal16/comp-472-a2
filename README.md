@@ -36,3 +36,6 @@ Call main.py from the command line or using your preferred text editor / IDE.
 
 -o or --output : Specifies which directory to write files to. Defaults to "output".
 ```
+
+Github URL: https://github.com/OliRac/comp-472-a2 <br />
+

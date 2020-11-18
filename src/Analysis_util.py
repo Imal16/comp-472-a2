@@ -34,6 +34,7 @@ def search_reader(algo,h=None,files=50,row=2,col=4):
     print("Search Length std dev:" , np.std(line_count))
     print("Search Length min:" , min(line_count))
     print("Search Length max:" , max(line_count))
+    print("Search Length total:", sum(line_count))
 # =============================================================================
 #     
 #     with open(analysis_path/output_file, 'w') as file:        
@@ -71,11 +72,15 @@ def solution_reader(algo,h=None,files=50,row=2,col=4):
     #print("Solution Costs: ", search_cost)
     print("Solution Costs average:", np.average(search_cost))
     print("Solution Costs std dev:" , np.std(search_cost))
+    print("Solution Cost total:", sum(search_cost))
     print("Solution Costs min:", min(search_cost))
     print("Solution Costs max:", max(search_cost))
+    
+
     #print("Solution Times ",search_time)
     print("Solution Times average:", np.average(search_time))
     print("Solution Times std dev:" , np.std(search_time))
+    print("Solution Time total:", sum(search_time))
     print("Solution Times min:", min(search_time))
     print("Solution Times max:", max(search_time))
     print("Amount of No Solutions: ", No_solution)
